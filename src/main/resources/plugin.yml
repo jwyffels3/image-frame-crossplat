@@ -1,0 +1,6 @@
+name: ImageFrameCrossplay
+version: "${VERSION}"
+main: io.github.jwyffels3.imageframecrossplay.ImageFrameCrossplayPlugin
+api-version: "26.3"
+description: Shows ImageFrame upload links in a pop-up (Java and Bedrock) with an optional QR-code map
+softdepend: [ImageFrame]
