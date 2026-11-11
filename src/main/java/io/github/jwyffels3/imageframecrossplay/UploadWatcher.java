@@ -71,6 +71,32 @@ final class UploadWatcher implements Runnable {
       UUID playerId = player.getUniqueId();
       LinkDialog.show(plugin, player, link, () -> giveQr(playerId, link.id()));
     }
+    for (ImageFrameBridge.PendingLink link : active.values()) {
+      showCountdown(link, now);
+    }
+  }
+
+  /**
+   * While the player holds the link's QR map (either hand), the action bar shows how long the link
+   * has left. The action bar is used rather than the map's name: renaming the held item every
+   * second would replay the hand animation on Java.
+   */
+  private void showCountdown(ImageFrameBridge.PendingLink link, long now) {
+    Player player = Bukkit.getPlayer(link.creator());
+    if (player == null) {
+      return;
+    }
+    PlayerInventory inventory = player.getInventory();
+    if (!link.id().equals(maps.linkOf(inventory.getItemInMainHand()))
+        && !link.id().equals(maps.linkOf(inventory.getItemInOffHand()))) {
+      return;
+    }
+    long seconds = Math.max(0, (link.expire() - now + 999) / 1000);
+    player.sendActionBar(Component.text()
+        .append(Component.text("Upload link expires in ", NamedTextColor.GRAY))
+        .append(Component.text(String.format("%d:%02d", seconds / 60, seconds % 60),
+            seconds <= 60 ? NamedTextColor.RED : NamedTextColor.YELLOW))
+        .build());
   }
 
   private static boolean ended(ImageFrameBridge.PendingLink link, long now) {
